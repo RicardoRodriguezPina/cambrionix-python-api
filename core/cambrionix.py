@@ -34,9 +34,7 @@ class Cambrionix(object):
         # self._interface.sendCommand('remote exit')
         if self._poller:
             self._poller.stop()
-            
-            # do we need to join it??
-            #self._poller.join()
+            self._poller.join(timeout=self._interface.getReadTimeout())
             
         self._interface.close()
 
@@ -87,7 +85,7 @@ class Cambrionix(object):
                 else:
                     port = cambrionixport.Port(serialInterface=self._interface, portId=portId, state=state)
                     self._ports[portId] = port
-        except Exception as e:
+        except Exception, e:
             print "Error parsing the response %s (%s)" % (stateResponse, str(e))
             
         if len(self._ports) == 0:

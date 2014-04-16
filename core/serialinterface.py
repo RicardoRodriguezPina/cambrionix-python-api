@@ -88,14 +88,17 @@ class SerialInterface(object):
     def __init__(self, serialFactory, *args, **kwargs):
         
         if 'timeout' not in kwargs:
-            kwargs['timeout'] = 1.0
+            kwargs['timeout'] = 0.5
             
         self._ignoreFirstLine = False
         
-        self._globalTimeout = float(kwargs['timeout'])
+        self._readTimeout = float(kwargs['timeout'])
         
         # for each command to retrieve a respond, we'll wait just one second
         self._serial = serialFactory(*args, **kwargs)
+        
+    def getReadTimeout(self):
+        return self._readTimeout
         
     def setIgnoreFirstLine(self, ignore):
         self._ignoreFirstLine = ignore
@@ -130,8 +133,8 @@ class SerialInterface(object):
             if len(result) > 0:
                 response.append(result)
             
-            if time.time() - start > self._globalTimeout:
-                raise SerialInterfaceException('Could not get a response within %f seconds.' % self._globalTimeout)
+            if time.time() - start > self._readTimeout:
+                raise SerialInterfaceException('Could not get a response within %f seconds.' % self._readTimeout)
             
         # join it into a string
         response = ''.join(response[:-2])
