@@ -22,6 +22,21 @@ class TestCambrionix(unittest.TestCase):
         
     def testGetConnectedPorts(self):
         self.camb.getConnectedPorts()
+
+    def testGetProfiles(self):
+        self.assertEquals(5, len(self.camb.getProfiles()))
+        
+    def testDisableEnableProfile(self):
+        
+        #enable one
+        self.camb.enableProfile(4)
+        self.assertFalse(all([prof[1] == 'enabled' for prof in self.camb.getProfiles()]))
+        self.assertTrue(any([prof[1] == 'enabled' for prof in self.camb.getProfiles()]))
+        
+        # disable alle
+        self.camb.disableAllProfiles()
+        self.assertTrue(all([prof[1] == 'disabled' for prof in self.camb.getProfiles()]))
+    
         
 #         print camb._command('\x03')
 #         print camb._command('beep 1000')

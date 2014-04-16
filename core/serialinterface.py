@@ -5,10 +5,10 @@ Created on Apr 16, 2014
 '''
 import serial
 import time
+import tools
 
 class ResponseHandler(object):
-    def __init__(self, ignoreFirstLine=False, ignoreEmptyLines=True):
-        self.ignoreFirstLine = ignoreFirstLine
+    def __init__(self, ignoreEmptyLines=True):
         self.ignoreEmptyLines = ignoreEmptyLines
 
 class RawResponseHandler(ResponseHandler):
@@ -33,11 +33,7 @@ class ListResponseHandler(ResponseHandler):
     def __call__(self, response):
         parsedResponse = {}
 
-        lines = response.splitlines()
-        if self.ignoreFirstLine and len(lines) > 0:
-            lines.pop(0)
-                    
-        for line in lines:
+        for line in response.splitlines():
             
             line = line.strip()
             if len(line) == 0 and self.ignoreEmptyLines:
@@ -64,11 +60,7 @@ class TableResponseHandler(ResponseHandler):
     def __call__(self, response):
         parsedResponse = []
         cols = None
-        lines = response.splitlines()
-        if self.ignoreFirstLine and len(lines) > 0:
-            lines.pop(0)
-                    
-        for line in lines:
+        for line in response.splitlines():
             line = line.strip()
             if len(line) == 0 and self.ignoreEmptyLines:
                 continue
@@ -112,6 +104,7 @@ class SerialInterface(object):
         if not self._serial.closed:
             self._serial.close()
         
+    @tools.synchronized
     def sendCommand(self, command, responseHandler=RawResponseHandler(), removeEcho=True, sendSuffix='\r\n', responseTerminator='>>'):
         """
         Main interface of the serial interface.

@@ -7,26 +7,44 @@ import serial
 import re
 import serialinterface
 import cambrionixport
+import threading
+import time
 
 class CambrionixException(Exception):
     pass
 
 class Cambrionix(object):
     
-    def __init__(self, device):
+    def __init__(self, device, autoUpdate=1.0):
         
         self._interface = serialinterface.SerialInterface(serial.Serial, device, 115200, 8, 'N', 1)
         self._ports = {}
         
+        self.resetReboot()
         self.updatePorts()
+        
+        self._poller = None
+        if autoUpdate is not None:
+            self._poller = StatePoller(self, autoUpdate)
+            self._poller.start()
+        
         
     def close(self):
         # necessary?
         # self._interface.sendCommand('remote exit')
+        if self._poller:
+            self._poller.stop()
+            
+            # do we need to join it??
+            #self._poller.join()
+            
         self._interface.close()
 
     def health(self):
         return self._interface.sendCommand('health')
+    
+    def resetReboot(self):
+        self._interface.sendCommand('crf')
     
     def sendBreak(self):
         """
@@ -37,21 +55,16 @@ class Cambrionix(object):
         
     
     def getProfiles(self):
-        profileResponse = self._command('list_profiles')
-        
-        profiles = []
-        for profile in re.split('[\r\n]+', profileResponse):
-            m = self.profilesPattern.match(profile)
-            if m:
-                profiles.append(m.group(1))
-            
-        return profiles
-
+        return self._interface.sendCommand('list_profiles', serialinterface.TableResponseHandler())
+    
     def disableAllProfiles(self):
         profiles = self.getProfiles()
         
         for profile in profiles:
-            self._command('en_profile %s 0' % profile)
+            self._interface.sendCommand('en_profile %s 0' % profile[0])
+    
+    def enableProfile(self, profileId):
+        self._interface.sendCommand('en_profile %s 1' % str(profileId))
             
     def enableAllProfiles(self):
         profiles = self.getProfiles()
@@ -90,3 +103,21 @@ class Cambrionix(object):
         return self._ports[portId]
 
 
+class StatePoller(threading.Thread):
+    def __init__(self, cambrionix, interval=1.0):
+        threading.Thread.__init__(self)
+        
+        self._interval = interval
+        self._cambrionix = cambrionix
+        
+        self._stop = threading.Event()
+        
+    def run(self):
+        while not self._stop.isSet():
+            # print "updating cambrionix ports"
+            self._cambrionix.updatePorts()
+            time.sleep(self._interval)
+            
+    def stop(self):
+        self._stop.set()
+            

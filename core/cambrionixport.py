@@ -24,7 +24,7 @@ class Port(object):
                  }
 
     
-    def __init__(self, serialInterface, portId, state, autoupdate=True):
+    def __init__(self, serialInterface, portId, state):
         
         self._interface = serialInterface
         self.portId = portId
@@ -32,8 +32,6 @@ class Port(object):
         self.flags = set()
         self.uptime = 0
         self.energy = 0
-        
-        self._autoupdate = autoupdate
         
         self.update(state)
         
@@ -56,16 +54,9 @@ class Port(object):
             raise cambrionix.CambrionixException('requesting state for one port should return only one port. Got %s' % response)
         
         self.update(response[0])
-        
-    
-    def _doAutoupdate(self):
-        if not self._autoupdate:
-            return
-        
-        self.selfUpdate()
-        
+                
     def update(self, state):
-        print "updating port %d to state %s" % (self.portId, str(state))
+        #print "updating port %d to state %s" % (self.portId, str(state))
         if len(state) != 7:
             raise cambrionix.CambrionixException('Port state is expected to have 7 values. Got %s' % state)
         
@@ -80,14 +71,16 @@ class Port(object):
     def isOff(self):
         return 'off' in self.flags
     
-    def isCharge(self):
+    def isOn(self):
+        return 'charging' in self.flags or 'profiling' in self.flags or 'finished' in self.flags
+    
+    def isCharging(self):
         return 'charging' in self.flags
         
     def _setMode(self, mode):
         response = self._interface.sendCommand('mode %s %d' % (mode, self.portId))
         if response.strip() != '':
             raise cambrionix.CambrionixException('Could not set port (%s)' % response)
-        self._doAutoupdate()
         
     def setCharge(self):
         self._setMode('c')
