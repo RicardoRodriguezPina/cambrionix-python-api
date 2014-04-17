@@ -11,14 +11,14 @@ import time
 class CambrionixPortTest(unittest.TestCase):
 
     def setUp(self):
-        self.camb = cambrionix.Cambrionix('/dev/ttyUSB1')
+        self.camb = cambrionix.Cambrionix('/dev/ttyUSB0')
         
     def tearDown(self):
         self.camb.close()
         
     def testSetOnAndOff(self):
-        self.camb.disableAllProfiles()
-        self.camb.enableProfile(4)
+        #self.camb.disableAllProfiles()
+        self.camb.enableProfile(1)
         
         port1 = self.camb.getPort(1)
         port1.setCharge()

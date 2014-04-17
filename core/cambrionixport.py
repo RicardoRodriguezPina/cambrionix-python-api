@@ -22,7 +22,6 @@ class Port(object):
                  'R': 'rebooted',
                  'r': 'vbus_reset'
                  }
-
     
     def __init__(self, serialInterface, portId, state):
         
@@ -56,7 +55,7 @@ class Port(object):
         self.update(response[0])
                 
     def update(self, state):
-        #print "updating port %d to state %s" % (self.portId, str(state))
+        # print "updating port %d to state %s" % (self.portId, str(state))
         if len(state) != 7:
             raise cambrionix.CambrionixException('Port state is expected to have 7 values. Got %s' % state)
         
@@ -77,13 +76,13 @@ class Port(object):
     def isCharging(self):
         return 'charging' in self.flags
         
-    def _setMode(self, mode):
-        response = self._interface.sendCommand('mode %s %d' % (mode, self.portId))
+    def _setMode(self, mode, suffix=''):
+        response = self._interface.sendCommand('mode %s %d%s' % (mode, self.portId, suffix))
         if response.strip() != '':
             raise cambrionix.CambrionixException('Could not set port (%s)' % response)
         
     def setCharge(self):
-        self._setMode('c')
+        self._setMode('c', ' 1')
         
     def setOff(self):
         self._setMode('o')

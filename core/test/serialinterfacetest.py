@@ -16,5 +16,5 @@ class TestResponseHandlers(unittest.TestCase):
         1 , 2, 3"""))
 
     def testListResponseHandler(self):
-        self.assertEquals({'keyA':'valueA', 'keyB':'valueB'}, serialinterface.ListResponseHandler()("""keyA:valueA
+        self.assertEquals({'keyA':'valueA', 'keyB':'valueB'}, serialinterface.MapResponseHandler()("""keyA:valueA
         keyB : valueB"""))

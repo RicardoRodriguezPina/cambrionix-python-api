@@ -28,7 +28,6 @@ class Cambrionix(object):
             self._poller = StatePoller(self, autoUpdate)
             self._poller.start()
         
-        
     def close(self):
         # necessary?
         # self._interface.sendCommand('remote exit')

@@ -9,7 +9,7 @@ import cambrionix
 class TestCambrionix(unittest.TestCase):
     
     def setUp(self):
-        self.camb = cambrionix.Cambrionix('/dev/ttyUSB1')
+        self.camb = cambrionix.Cambrionix('/dev/ttyUSB0')
         
     def tearDown(self):
         self.camb.close()
@@ -36,28 +36,4 @@ class TestCambrionix(unittest.TestCase):
         # disable alle
         self.camb.disableAllProfiles()
         self.assertTrue(all([prof[1] == 'disabled' for prof in self.camb.getProfiles()]))
-    
         
-#         print camb._command('\x03')
-#         print camb._command('beep 1000')
-#         #camb.readForever()
-#         
-#         camb.updatePorts()
-#         camb._command('crf')
-#         print camb.getConnectedPorts()
-#         
-#         print camb._command('list_profiles')
-#         #camb.disableAllProfiles()
-#         print camb._command('list_profiles')
-#         camb.updatePorts()
-#         print camb.getConnectedPorts()
-#         camb.enableAllProfiles()
-#         print camb._command('list_profiles')
-#         print camb.getConnectedPorts()
-#         #print camb._command('mode c')
-#         #print camb._command('loge 1')
-#         print camb._command('system')
-#         
-
-def createDummyCambrionix():
-    return cambrionix.Cambrionix(device='', serialFactory=lambda *args, **kwargs:None)

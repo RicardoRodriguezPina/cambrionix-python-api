@@ -19,7 +19,7 @@ class RawResponseHandler(ResponseHandler):
     def __call__(self, response):
         return str(response)
 
-class ListResponseHandler(ResponseHandler):
+class MapResponseHandler(ResponseHandler):
     """
     Assumes a key-value response, which is 
     transformed into a python dict.
@@ -88,7 +88,7 @@ class SerialInterface(object):
     def __init__(self, serialFactory, *args, **kwargs):
         
         if 'timeout' not in kwargs:
-            kwargs['timeout'] = 0.5
+            kwargs['timeout'] = 1
             
         self._ignoreFirstLine = False
         
@@ -115,7 +115,7 @@ class SerialInterface(object):
         The response is read until the responseTerminator appears.
         
         The response is than handed to the responesHandler, which transforms as necessary.
-        Existing response handlers are RawResponseHandler, TableResponseHandler, ListResponseHandler
+        Existing response handlers are RawResponseHandler, TableResponseHandler, MapResponseHandler
         """
         
         commandToWrite = command
