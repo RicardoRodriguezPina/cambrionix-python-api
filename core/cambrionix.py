@@ -95,9 +95,15 @@ class Cambrionix(object):
     
     def getPort(self, portId):
         if portId not in self._ports:
-            raise AttributeError('No cambrionixport available with ID %d' % int(portId))
+            raise AttributeError('No cambrionixport available with ID %d (have %s)' % (int(portId), ','.join(self._ports.keys())))
         
         return self._ports[portId]
+    
+    # this method is not tested. Test it before actiavating it again!
+#     def getPorts(self, portIds):
+#         assert all(portId in self._ports for portId in portIds), 'One of the passed portIds is invalid. Good luck :)'
+#         
+#         return [port for port in self._ports if port.portId in portIds]
 
 
 class StatePoller(threading.Thread):
