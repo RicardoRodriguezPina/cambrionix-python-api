@@ -96,7 +96,9 @@ class Cambrionix(object):
     def getPort(self, portId):
         portId = int(portId)
         if portId not in self._ports:
-            raise AttributeError('No cambrionixport available with ID %d (have %s)' % (int(portId), ','.join(self._ports.keys())))
+            raise AttributeError('No cambrionixport available with ID %d (have %s)' % 
+                                 (int(portId), ','.join([str(k) 
+                                                         for k in self._ports.keys()])))
         
         return self._ports[portId]
     
