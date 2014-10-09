@@ -129,6 +129,7 @@ class SerialInterface(object):
         self._serial.write(commandToWrite)
         # first the response byte by byte
         response = []
+        start = time.time()
         while len(response) < len(responseTerminator) or ''.join(response[-len(responseTerminator):]) != responseTerminator:
             result = self._serial.read(1)
             if len(result) > 0:
