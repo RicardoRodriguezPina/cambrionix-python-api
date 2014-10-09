@@ -9,6 +9,9 @@ import serialinterface
 import cambrionixport
 import threading
 import time
+import logging
+
+log = logging.getLogger('CambrionixCore')
 
 class CambrionixException(Exception):
     pass
@@ -16,15 +19,18 @@ class CambrionixException(Exception):
 class Cambrionix(object):
     
     def __init__(self, device, autoUpdate=1.0):
-        
-        self._interface = serialinterface.SerialInterface(serial.Serial, device, 115200, 8, 'N', 1)
+        self._interface = serialinterface.SerialInterface(serial.Serial, device, 115200, 8, 'N', 2)
+        log.debug("interface setup OK")
         self._ports = {}
         
         self.resetReboot()
+        log.debug("reset reboot OK")
         self.updatePorts()
+        log.debug("updated Ports")
         
         self._poller = None
         if autoUpdate is not None:
+            log.info("starting auto-poller")
             self._poller = StatePoller(self, autoUpdate)
             self._poller.start()
         
@@ -85,7 +91,7 @@ class Cambrionix(object):
                     port = cambrionixport.Port(serialInterface=self._interface, portId=portId, state=state)
                     self._ports[portId] = port
         except Exception, e:
-            print "Error parsing the response %s (%s)" % (stateResponse, str(e))
+            log.error("Error parsing the response %s (%s)" % (stateResponse, str(e)))
             
         if len(self._ports) == 0:
             raise CambrionixException('Could not read any ports. Something is seriously wrong.')
@@ -102,12 +108,6 @@ class Cambrionix(object):
         
         return self._ports[portId]
     
-    # this method is not tested. Test it before actiavating it again!
-#     def getPorts(self, portIds):
-#         assert all(portId in self._ports for portId in portIds), 'One of the passed portIds is invalid. Good luck :)'
-#         
-#         return [port for port in self._ports if port.portId in portIds]
-
 
 class StatePoller(threading.Thread):
     def __init__(self, cambrionix, interval=1.0):
@@ -120,7 +120,6 @@ class StatePoller(threading.Thread):
         
     def run(self):
         while not self._stop.isSet():
-            # print "updating cambrionix ports"
             self._cambrionix.updatePorts()
             time.sleep(self._interval)
             
